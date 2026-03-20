@@ -14,9 +14,6 @@ import (
 	"path/filepath"
 )
 
-// export db
-var DB *gorm.DB
-
 const (
 	DBTypeSQLite DBTypeConfig = "sqlite"
 	DBTypeMySQL  DBTypeConfig = "mysql"

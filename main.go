@@ -14,7 +14,7 @@ func main() {
 	// 创建 Gin 引擎
 	r := gin.Default()
 	// 全局中间件
-	r.Use(pkg.Logger())
+	r.Use(gin.Logger())
 	r.Use(pkg.CORS())
 
 	router.Router(r)

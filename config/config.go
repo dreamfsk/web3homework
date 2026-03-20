@@ -2,11 +2,14 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 	"log"
 )
 
 var (
 	config Config
+	// export db
+	DB *gorm.DB
 )
 
 type DBTypeConfig string
