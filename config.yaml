@@ -1,0 +1,22 @@
+server:
+  port: "8080"
+  host: "0.0.0.0"
+  mode: "debug"  # debug, release, test
+
+ctxkey: "operator"
+dbtype: "mysql"
+
+sqlite:
+  dbname: "blog.sqlite.db"
+
+mysql:
+  host: "192.168.31.220"
+  port: "3306"
+  username: "ds"
+  password: "Wjqse4164#term"
+  dbname: "blog"
+
+jwt:
+  secret: "your-secret-key-change-in-production"
+  expire: "24h"
+
