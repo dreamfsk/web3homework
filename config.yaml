@@ -8,6 +8,7 @@ dbtype: "mysql"
 
 sqlite:
   dbname: "blog.sqlite.db"
+  migrate: false
 
 mysql:
   host: "192.168.31.220"
@@ -15,6 +16,7 @@ mysql:
   username: "ds"
   password: "Wjqse4164#term"
   dbname: "blog"
+  migrate: false
 
 jwt:
   secret: "your-secret-key-change-in-production"

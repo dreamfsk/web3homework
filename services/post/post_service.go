@@ -2,47 +2,48 @@ package post
 
 import (
 	"com.dreamfsk/blog/commons"
-	"com.dreamfsk/blog/repository/post"
+	"com.dreamfsk/blog/repository/models"
+	"com.dreamfsk/blog/repository/repos"
 	"com.dreamfsk/blog/utils"
 )
 
-func (a *service) CreatePost(req *PostCreateReq) (*post.Post, error) {
-	p := post.Post{
+func (a *service) CreatePost(req *PostCreateReq) (*models.Post, error) {
+	p := models.Post{
 		Title:   req.Title,
 		Content: req.Content,
 		UserID:  req.UserId,
 	}
-	_, err := post.NewPostRepo(a.db, &p).CreatePost()
+	_, err := repos.NewPostRepo(a.db, &p).CreatePost()
 	if err != nil {
 		return nil, utils.ServiceError(commons.PostAddError)
 	}
 	return &p, nil
 }
 
-func (a *service) GetPostPageList(req *PostPageReq) (*[]post.Post, error) {
-	p := post.Post{
+func (a *service) GetPostPageList(req *PostPageReq) (*[]models.Post, error) {
+	p := models.Post{
 		UserID: req.UserId,
 	}
-	posts, err := post.NewPostRepo(a.db, &p).PostList()
+	posts, err := repos.NewPostRepo(a.db, &p).PostList()
 	if err != nil {
 		return nil, utils.ServiceError(commons.PostListError)
 	}
 	return posts, nil
 }
 
-func (a *service) GetPostById(id uint) (*post.Post, error) {
-	p := post.Post{
+func (a *service) GetPostById(id uint) (*models.Post, error) {
+	p := models.Post{
 		ID: id,
 	}
-	ps, err := post.NewPostRepo(a.db, &p).GetPostById()
+	ps, err := repos.NewPostRepo(a.db, &p).GetPostById()
 	if err != nil {
 		return nil, utils.ServiceError(commons.PostNotFoundError)
 	}
 	return ps, nil
 }
 
-func (a *service) UpdatePost(req *PostUpdateReq) (*post.Post, error) {
-	p := post.Post{
+func (a *service) UpdatePost(req *PostUpdateReq) (*models.Post, error) {
+	p := models.Post{
 		ID: req.ID,
 	}
 	check, err := a.GetPostById(req.ID)
@@ -52,7 +53,7 @@ func (a *service) UpdatePost(req *PostUpdateReq) (*post.Post, error) {
 	if req.UserId != check.UserID {
 		return nil, utils.ServiceError(commons.PostUpdateAuthError)
 	}
-	_, err = post.NewPostRepo(a.db, &p).UpdatePostByMap(map[string]any{"content": req.Content})
+	_, err = repos.NewPostRepo(a.db, &p).UpdatePostByMap(map[string]any{"content": req.Content})
 	if err != nil {
 		return nil, utils.ServiceError(commons.PostUpdateError)
 	}
@@ -71,7 +72,7 @@ func (a *service) DeletePost(id uint) (int, error) {
 	if id != check.UserID {
 		return 0, utils.ServiceError(commons.PostDeleteAuthError)
 	}
-	err = post.NewPostRepo(a.db, &post.Post{ID: id}).DeletePost()
+	err = repos.NewPostRepo(a.db, &models.Post{ID: id}).DeletePost()
 	if err != nil {
 		return 0, utils.ServiceError(commons.PostDeleteError)
 	}

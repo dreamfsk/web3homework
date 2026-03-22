@@ -1,14 +1,14 @@
 package comment
 
 import (
-	"com.dreamfsk/blog/repository/comment"
+	"com.dreamfsk/blog/repository/models"
 	"gorm.io/gorm"
 )
 
 type Service interface {
 	i()
-	CreateComment(req *CommentCreatReq) (*comment.Comment, error)
-	GetCommentList(req *CommentPageReq) (*[]comment.Comment, error)
+	CreateComment(req *CommentCreatReq) (*models.Comment, error)
+	GetCommentList(req *CommentPageReq) (*[]models.Comment, error)
 }
 
 type service struct {

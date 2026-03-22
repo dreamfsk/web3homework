@@ -1,7 +1,8 @@
 package config
 
 import (
-	"com.dreamfsk/blog/repository/user"
+	"com.dreamfsk/blog/commons"
+	"com.dreamfsk/blog/repository/models"
 	"com.dreamfsk/blog/utils"
 	"fmt"
 	"github.com/glebarez/sqlite"
@@ -32,26 +33,25 @@ func getDBType(c *Config) DBTypeConfig {
 
 // GetDB
 
-func GetDB(migrate ...bool) (*gorm.DB, error) {
+func GetDB() (*gorm.DB, error) {
 	if DB != nil {
+		if commons.Migrate {
+			initModels()
+		}
 		return DB, nil
 	}
-	if migrate != nil && len(migrate) > 0 {
-		err := initDatabase(migrate[0])
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := initDatabase(false)
-		if err != nil {
-			return nil, err
-		}
+	err := initDatabase()
+	if err != nil {
+		return nil, err
+	}
+	if commons.Migrate {
+		initModels()
 	}
 	return DB, nil
 }
 
 // initDatabase /
-func initDatabase(migrate bool) error {
+func initDatabase() error {
 	c := Env()
 	dbType := getDBType(c)
 	switch dbType {
@@ -67,9 +67,6 @@ func initDatabase(migrate bool) error {
 		}
 	default:
 		log.Printf("unsupported database type: %s", dbType)
-	}
-	if DB != nil && migrate {
-		initModels()
 	}
 	return nil
 }
@@ -95,6 +92,9 @@ func initMysql(c *Config) error {
 	if err != nil {
 		log.Fatal("Failed to connect to MySQL database:", err)
 	}
+	if DB != nil && c.Mysql.Migrate {
+		commons.Migrate = c.Mysql.Migrate
+	}
 	return err
 }
 
@@ -118,19 +118,16 @@ func initSqlite(c *Config) error {
 	if err != nil {
 		log.Fatal("Failed to connect to SqliteL database:", err)
 	}
+	if DB != nil && c.Mysql.Migrate {
+		commons.Migrate = c.Mysql.Migrate
+	}
 	return err
 }
-
 func initModels() {
-	var err error
-	if DB == nil {
-		log.Println("DB is null")
-		return
-	}
 	// autoMigrate
-	err = DB.AutoMigrate(&user.User{})
+	err := DB.AutoMigrate(&models.User{}, &models.Post{}, &models.Comment{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
-	log.Println("===database connected and migrated successfully===")
+	log.Println("===migrated tables successfully===")
 }

@@ -21,7 +21,6 @@ func Router(r *gin.Engine) {
 	if err != nil {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
-
 	cfg := config.Env()
 	setRoutApi(r, db, cfg)
 }

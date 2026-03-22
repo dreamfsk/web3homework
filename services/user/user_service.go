@@ -2,7 +2,8 @@ package user
 
 import (
 	"com.dreamfsk/blog/commons"
-	"com.dreamfsk/blog/repository/user"
+	"com.dreamfsk/blog/repository/models"
+	"com.dreamfsk/blog/repository/repos"
 	"com.dreamfsk/blog/utils"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
@@ -11,10 +12,10 @@ import (
 )
 
 // CreateUser
-func (s *service) CreateUser(req *CreateUserReq) (*user.User, error) {
+func (s *service) CreateUser(req *CreateUserReq) (*models.User, error) {
 	// 检查用户名是否已存在
 	log.Printf("UserService.CreateUser user: %#v", req)
-	repo := user.NewRepo(s.db)
+	repo := repos.NewRepo(s.db)
 	u := repo.Model
 	u.Username = req.Username
 	var er error
@@ -44,9 +45,9 @@ func (s *service) CreateUser(req *CreateUserReq) (*user.User, error) {
 	return u, nil
 }
 
-func (s *service) GetUserByID(id uint) (*user.User, error) {
+func (s *service) GetUserByID(id uint) (*models.User, error) {
 	log.Printf("UserService.GetUserByID user: %#v", id)
-	repo := user.NewRepo(s.db)
+	repo := repos.NewRepo(s.db)
 	repo.Model.ID = id
 	u, err := repo.GetUser()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -55,9 +56,9 @@ func (s *service) GetUserByID(id uint) (*user.User, error) {
 	return u, nil
 }
 
-func (s *service) Authenticate(username, password string) (*user.User, error) {
+func (s *service) Authenticate(username, password string) (*models.User, error) {
 	log.Printf("UserService.Authenticate username: %v ,password: %v", username, password)
-	repo := user.NewRepo(s.db)
+	repo := repos.NewRepo(s.db)
 	repo.Model.Username = username
 	u := repo.Model
 	if err := repo.CheckNameExists(); err != nil {
@@ -73,7 +74,7 @@ func (s *service) Authenticate(username, password string) (*user.User, error) {
 	return u, nil
 }
 
-func (s *service) UpdateUser(id uint, req *UpdateUserReq) (*user.User, error) {
+func (s *service) UpdateUser(id uint, req *UpdateUserReq) (*models.User, error) {
 	u, err := s.GetUserByID(id)
 	if err != nil {
 		return nil, err
@@ -84,7 +85,7 @@ func (s *service) UpdateUser(id uint, req *UpdateUserReq) (*user.User, error) {
 		return nil, utils.ServiceError(commons.UserEmailExist)
 	}
 	u.Email = req.Email
-	_, err = user.NewRepo(s.db, u).Save()
+	_, err = repos.NewRepo(s.db, u).Save()
 	if err != nil {
 		return nil, utils.ServiceError(commons.UserUpdateFail)
 	}

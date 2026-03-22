@@ -63,12 +63,12 @@ func (a *handler) PostPageList(c *gin.Context) {
 }
 
 func (a *handler) GetPost(c *gin.Context) {
-	ID, exists := c.Get("ID")
-	if !exists {
-		utils.Error(c, http.StatusInternalServerError, commons.PostNotFoundError.String())
+	var req post.PostSearchReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		utils.ValidationError(c, validation.Error(err))
 		return
 	}
-	ps, err := a.postService.GetPostById(ID.(uint))
+	ps, err := a.postService.GetPostById(req.ID)
 	if err != nil {
 		utils.HandleError(c, err)
 		return
@@ -107,12 +107,12 @@ func (a *handler) RefreshPost(c *gin.Context) {
 }
 
 func (a *handler) PostRemove(c *gin.Context) {
-	ID, exists := c.Get("ID")
-	if !exists {
-		utils.Error(c, http.StatusInternalServerError, commons.PostNotFoundError.String())
+	var req post.PostSearchReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		utils.ValidationError(c, validation.Error(err))
 		return
 	}
-	rs, err := a.postService.DeletePost(ID.(uint))
+	rs, err := a.postService.DeletePost(req.ID)
 	if err != nil {
 		utils.HandleError(c, err)
 		return

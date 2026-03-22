@@ -27,12 +27,11 @@ func setRoutApi(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	{
 		protected.GET("/user/me", userHandler.GetProfile)
 		protected.PUT("/user/update", userHandler.UpdateProfile)
-		public.POST("/user/get", userHandler.GetProfile)
 
 		postHandler := post.NewHandler(db)
 		protected.POST("/post/add", postHandler.NewPost)
 		protected.PUT("/post/update", postHandler.RefreshPost)
-		protected.POST("/users/page", postHandler.PostPageList)
+		protected.POST("/post/page", postHandler.PostPageList)
 		protected.GET("/post/get", postHandler.GetPost)
 		protected.GET("/post/delete", postHandler.PostRemove)
 

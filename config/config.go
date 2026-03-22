@@ -26,7 +26,8 @@ type ServerConfig struct {
 }
 
 type SqliteConfig struct {
-	DBName string `mapstructure:"dbname"`
+	DBName  string `mapstructure:"dbname"`
+	Migrate bool   `mapstructure:"migrate"`
 }
 type MysqlConfig struct {
 	Host     string `mapstructure:"host"`
@@ -34,6 +35,7 @@ type MysqlConfig struct {
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	DBName   string `mapstructure:"dbname"`
+	Migrate  bool   `mapstructure:"migrate"`
 }
 
 type JWTConfig struct {
@@ -52,6 +54,11 @@ func init() {
 	// 将配置反序列化到结构体
 	if err := viper.Unmarshal(&config); err != nil {
 		log.Fatalf("反序列化配置失败: %s", err)
+	}
+
+	err := initDatabase()
+	if err != nil {
+		return
 	}
 }
 

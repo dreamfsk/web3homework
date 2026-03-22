@@ -2,27 +2,28 @@ package comment
 
 import (
 	"com.dreamfsk/blog/commons"
-	"com.dreamfsk/blog/repository/comment"
+	"com.dreamfsk/blog/repository/models"
+	"com.dreamfsk/blog/repository/repos"
 	"com.dreamfsk/blog/utils"
 )
 
-func (a *service) CreateComment(req *CommentCreatReq) (*comment.Comment, error) {
-	c := new(comment.Comment)
+func (a *service) CreateComment(req *CommentCreatReq) (*models.Comment, error) {
+	c := new(models.Comment)
 	c.PostID = req.PostId
 	c.UserID = req.UserId
 	c.Content = req.Content
-	_, err := comment.NewCommentRepo(a.db, c).CreateComment()
+	_, err := repos.NewCommentRepo(a.db, c).CreateComment()
 	if err != nil {
 		return nil, utils.ServiceError(commons.CommentCreateError)
 	}
 	return c, nil
 }
 
-func (a *service) GetCommentList(req *CommentPageReq) (*[]comment.Comment, error) {
-	p := comment.Comment{
+func (a *service) GetCommentList(req *CommentPageReq) (*[]models.Comment, error) {
+	p := models.Comment{
 		PostID: req.PostId,
 	}
-	cs, err := comment.NewCommentRepo(a.db, &p).ListComment()
+	cs, err := repos.NewCommentRepo(a.db, &p).ListComment()
 	if err != nil {
 		return nil, utils.ServiceError(commons.PostListError)
 	}

@@ -1,16 +1,16 @@
 package post
 
 import (
-	"com.dreamfsk/blog/repository/post"
+	"com.dreamfsk/blog/repository/models"
 	"gorm.io/gorm"
 )
 
 type Service interface {
 	i()
-	CreatePost(req *PostCreateReq) (*post.Post, error)
-	GetPostById(id uint) (*post.Post, error)
-	UpdatePost(req *PostUpdateReq) (*post.Post, error)
-	GetPostPageList(req *PostPageReq) (*[]post.Post, error)
+	CreatePost(req *PostCreateReq) (*models.Post, error)
+	GetPostById(id uint) (*models.Post, error)
+	UpdatePost(req *PostUpdateReq) (*models.Post, error)
+	GetPostPageList(req *PostPageReq) (*[]models.Post, error)
 	DeletePost(id uint) (int, error)
 }
 

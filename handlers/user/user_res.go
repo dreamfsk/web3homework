@@ -1,6 +1,8 @@
 package user
 
-import "com.dreamfsk/blog/repository"
+import (
+	"com.dreamfsk/blog/repository/models"
+)
 
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
@@ -8,8 +10,8 @@ type LoginRequest struct {
 }
 
 type UserResponse struct {
-	ID        uint                  `json:"id"`
-	Username  string                `json:"username"`
-	Email     string                `json:"email"`
-	CreatedAt repository.CustomTime `json:"createdAt"`
+	ID        uint              `json:"id"`
+	Username  string            `json:"username"`
+	Email     string            `json:"email"`
+	CreatedAt models.CustomTime `json:"createdAt"`
 }

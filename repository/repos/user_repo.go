@@ -1,38 +1,20 @@
-package user
+package repos
 
 import (
-	"com.dreamfsk/blog/repository"
+	"com.dreamfsk/blog/repository/models"
 	"gorm.io/gorm"
 )
 
 type UserRepo struct {
 	DB    *gorm.DB
-	Model *User
+	Model *models.User
 }
 
-func NewRepo(db *gorm.DB, u ...*User) *UserRepo {
+func NewRepo(db *gorm.DB, u ...*models.User) *UserRepo {
 	if len(u) == 0 {
-		return &UserRepo{DB: db, Model: new(User)}
+		return &UserRepo{DB: db, Model: new(models.User)}
 	}
 	return &UserRepo{DB: db, Model: u[0]}
-}
-func (a *User) BeforeCreate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.CreatedBy = user
-	a.Audit.UpdatedBy = user
-	return nil
-}
-
-func (a *User) BeforeUpdate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.UpdatedBy = user
-	return nil
-}
-
-func (a *User) BeforeDelete(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.DeletedBy = user
-	return nil
 }
 
 func (repo *UserRepo) Create() (ID uint, err error) {
@@ -43,7 +25,7 @@ func (repo *UserRepo) Create() (ID uint, err error) {
 
 func (repo *UserRepo) CheckNameExists() error {
 	u := repo.Model
-	var existingUser User
+	var existingUser models.User
 	var err error
 	if u.Username != "" {
 		err = repo.DB.Where("username = ?", u.Username).First(&existingUser).Error
@@ -58,7 +40,7 @@ func (repo *UserRepo) CheckNameExists() error {
 
 func (repo *UserRepo) CheckEmailExists() error {
 	u := repo.Model
-	var existingUser User
+	var existingUser models.User
 	var err error
 	if u.Email != "" {
 		// 检查邮箱是否已存在
@@ -72,30 +54,30 @@ func (repo *UserRepo) CheckEmailExists() error {
 	return err
 }
 
-func (repo *UserRepo) GetUser() (u *User, err error) {
+func (repo *UserRepo) GetUser() (u *models.User, err error) {
 	up := repo.Model
-	var ur User
+	var ur models.User
 	err = repo.DB.First(&ur, up.ID).Error
 	return &ur, err
 }
 
-func (repo *UserRepo) UpdateUser() (u *User, err error) {
+func (repo *UserRepo) UpdateUser() (u *models.User, err error) {
 	up := repo.Model
-	var ur User
+	var ur models.User
 	err = repo.DB.First(&ur, up.ID).Error
 	return &ur, err
 }
 
-func (repo *UserRepo) UpdateUserByMap(m map[string]any) (u *User, err error) {
+func (repo *UserRepo) UpdateUserByMap(m map[string]any) (u *models.User, err error) {
 	up := repo.Model
-	au := repository.CurrentOperator(repo.DB)
+	au := models.CurrentOperator(repo.DB)
 	m["updated_by"] = au
-	ur := User{}
+	ur := models.User{}
 	err = repo.DB.Model(&ur).Where("id = ?", up.ID).Updates(m).Error
 	return &ur, err
 }
 
-func (repo *UserRepo) Save() (u *User, err error) {
+func (repo *UserRepo) Save() (u *models.User, err error) {
 	up := repo.Model
 	err = repo.DB.Save(up).Error
 	return up, err

@@ -1,40 +1,38 @@
-package comment
+package models
 
 import (
-	"com.dreamfsk/blog/repository"
-	"com.dreamfsk/blog/repository/post"
 	"gorm.io/gorm"
 	"log"
 )
 
-type CommentRepo struct {
-	DB    *gorm.DB
-	Model *Comment
-}
-
-func NewCommentRepo(db *gorm.DB, c ...*Comment) *CommentRepo {
-	if len(c) == 0 {
-		return &CommentRepo{db, new(Comment)}
-	} else {
-		return &CommentRepo{db, c[0]}
-	}
+type Comment struct {
+	ID        uint       `json:"id" gorm:"primaryKey"`
+	Content   string     `json:"content" gorm:"type:text;not null"`
+	UserID    uint       `json:"userId" gorm:"not null"`
+	PostID    uint       `json:"postId" gorm:"not null"`
+	Audit     Audit      `gorm:"embedded"`
+	CreatedAt CustomTime `json:"createdAt"`
+	UpdatedAt CustomTime `json:"updatedAt"`
+	DeletedAt CustomTime `json:"-" gorm:"index"`
+	User      User       `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	Post      Post       `json:"post,omitempty" gorm:"foreignKey:PostID"`
 }
 
 func (a *Comment) BeforeCreate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
+	user := CurrentOperator(tx)
 	a.Audit.CreatedBy = user
 	a.Audit.UpdatedBy = user
 	return nil
 }
 
 func (a *Comment) BeforeUpdate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
+	user := CurrentOperator(tx)
 	a.Audit.UpdatedBy = user
 	return nil
 }
 
 func (a *Comment) BeforeDelete(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
+	user := CurrentOperator(tx)
 	a.Audit.DeletedBy = user
 	// 如果 PostID
 	if a.ID != 0 && a.PostID == 0 {
@@ -59,22 +57,9 @@ func (a *Comment) AfterDelete(tx *gorm.DB) error {
 	if count > 0 {
 		return nil
 	}
-
-	_, err := post.NewPostRepo(tx, &post.Post{ID: a.PostID}).UpdatePostByMap(map[string]any{"comment_status": "无评论"})
+	err := tx.Model(&Post{}).Where("id=?", a.PostID).Updates(map[string]any{"comment_status": "无评论"}).Error
 	if err != nil {
 		log.Printf(" afterdelete comment then update post commentstatus err, id %v,postid: %v,err: %v", a.ID, a.PostID, err)
 	}
 	return nil
-}
-
-func (repo *CommentRepo) CreateComment() (cr *Comment, err error) {
-	c := repo.Model
-	err = repo.DB.Create(c).Error
-	return c, err
-}
-func (repo *CommentRepo) ListComment() (crs *[]Comment, err error) {
-	c := repo.Model
-	var comments []Comment
-	err = repo.DB.Model(&Comment{}).Where("post_id = ?", c.PostID).Scan(&comments).Error
-	return &comments, err
 }
