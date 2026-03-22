@@ -2,6 +2,8 @@ package user
 
 import (
 	"com.dreamfsk/blog/repository"
+	"com.dreamfsk/blog/repository/comment"
+	"com.dreamfsk/blog/repository/post"
 	"gorm.io/gorm"
 )
 
@@ -14,23 +16,7 @@ type User struct {
 	UpdatedAt repository.CustomTime `json:"updated_at"`
 	DeletedAt gorm.DeletedAt        `json:"-" gorm:"index"`
 	Audit     repository.Audit      `gorm:"embedded"`
-}
-
-func (a *User) BeforeCreate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.CreatedBy = user
-	a.Audit.UpdatedBy = user
-	return nil
-}
-
-func (a *User) BeforeUpdate(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.UpdatedBy = user
-	return nil
-}
-
-func (a *User) BeforeDelete(tx *gorm.DB) error {
-	user := repository.CurrentOperator(tx)
-	a.Audit.DeletedBy = user
-	return nil
+	PostCount int64                 `json:"post_count"`
+	Posts     []post.Post           `json:"posts,omitempty" gorm:"foreignKey:UserID"`
+	Comments  []comment.Comment     `json:"comments,omitempty" gorm:"foreignKey:UserID"`
 }

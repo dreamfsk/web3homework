@@ -1,6 +1,7 @@
 package user
 
 import (
+	"com.dreamfsk/blog/repository"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +15,24 @@ func NewRepo(db *gorm.DB, u ...*User) *UserRepo {
 		return &UserRepo{DB: db, Model: new(User)}
 	}
 	return &UserRepo{DB: db, Model: u[0]}
+}
+func (a *User) BeforeCreate(tx *gorm.DB) error {
+	user := repository.CurrentOperator(tx)
+	a.Audit.CreatedBy = user
+	a.Audit.UpdatedBy = user
+	return nil
+}
+
+func (a *User) BeforeUpdate(tx *gorm.DB) error {
+	user := repository.CurrentOperator(tx)
+	a.Audit.UpdatedBy = user
+	return nil
+}
+
+func (a *User) BeforeDelete(tx *gorm.DB) error {
+	user := repository.CurrentOperator(tx)
+	a.Audit.DeletedBy = user
+	return nil
 }
 
 func (repo *UserRepo) Create() (ID uint, err error) {
@@ -36,6 +55,7 @@ func (repo *UserRepo) CheckNameExists() error {
 	}
 	return err
 }
+
 func (repo *UserRepo) CheckEmailExists() error {
 	u := repo.Model
 	var existingUser User
@@ -63,6 +83,15 @@ func (repo *UserRepo) UpdateUser() (u *User, err error) {
 	up := repo.Model
 	var ur User
 	err = repo.DB.First(&ur, up.ID).Error
+	return &ur, err
+}
+
+func (repo *UserRepo) UpdateUserByMap(m map[string]any) (u *User, err error) {
+	up := repo.Model
+	au := repository.CurrentOperator(repo.DB)
+	m["updated_by"] = au
+	ur := User{}
+	err = repo.DB.Model(&ur).Where("id = ?", up.ID).Updates(m).Error
 	return &ur, err
 }
 

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"com.dreamfsk/blog/config/validation"
 	"com.dreamfsk/blog/repository"
 	"com.dreamfsk/blog/services/user"
 	"com.dreamfsk/blog/utils"
@@ -36,7 +37,7 @@ type UserResponse struct {
 func (h *handler) Register(c *gin.Context) {
 	var req user.CreateUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, parseValidationErrors(err))
+		utils.ValidationError(c, validation.Error(err))
 		return
 	}
 	u, err := h.userService.CreateUser(&req)
@@ -68,7 +69,7 @@ func (h *handler) Register(c *gin.Context) {
 func (h *handler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, parseValidationErrors(err))
+		utils.ValidationError(c, validation.Error(err))
 		return
 	}
 
@@ -148,7 +149,7 @@ func (h *handler) UpdateProfile(c *gin.Context) {
 
 	var req user.UpdateUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, parseValidationErrors(err))
+		utils.ValidationError(c, validation.Error(err))
 		return
 	}
 
@@ -164,11 +165,4 @@ func (h *handler) UpdateProfile(c *gin.Context) {
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
 	})
-}
-
-func parseValidationErrors(err error) map[string]string {
-	errors := make(map[string]string)
-	// 简化处理，实际应该解析 binding 错误
-	errors["general"] = err.Error()
-	return errors
 }
