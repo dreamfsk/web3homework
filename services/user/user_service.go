@@ -10,16 +10,6 @@ import (
 	"log"
 )
 
-type CreateUserReq struct {
-	Username string `json:"username" binding:"required,min=3,max=20"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
-type UpdateUserReq struct {
-	Email string `json:"email" binding:"omitempty,email"`
-}
-
 // CreateUser
 func (s *service) CreateUser(req *CreateUserReq) (*user.User, error) {
 	// 检查用户名是否已存在

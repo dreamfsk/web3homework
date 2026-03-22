@@ -2,24 +2,11 @@ package user
 
 import (
 	"com.dreamfsk/blog/config/validation"
-	"com.dreamfsk/blog/repository"
 	"com.dreamfsk/blog/services/user"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
-
-type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
-type UserResponse struct {
-	ID        uint                  `json:"id"`
-	Username  string                `json:"username"`
-	Email     string                `json:"email"`
-	CreatedAt repository.CustomTime `json:"created_at"`
-}
 
 // Register 注册新用户
 // @Summary      注册新用户

@@ -12,11 +12,11 @@ type User struct {
 	Username  string                `json:"username" gorm:"uniqueIndex;not null;size:50"`
 	Email     string                `json:"email" gorm:"uniqueIndex;not null;size:100"`
 	Password  string                `json:"-" gorm:"not null"`
-	CreatedAt repository.CustomTime `json:"created_at"`
-	UpdatedAt repository.CustomTime `json:"updated_at"`
+	CreatedAt repository.CustomTime `json:"createdAt"`
+	UpdatedAt repository.CustomTime `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt        `json:"-" gorm:"index"`
 	Audit     repository.Audit      `gorm:"embedded"`
-	PostCount int64                 `json:"post_count"`
+	PostCount int64                 `json:"postCount"`
 	Posts     []post.Post           `json:"posts,omitempty" gorm:"foreignKey:UserID"`
 	Comments  []comment.Comment     `json:"comments,omitempty" gorm:"foreignKey:UserID"`
 }

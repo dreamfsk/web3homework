@@ -10,11 +10,11 @@ var _ Handler = (*handler)(nil)
 
 type Handler interface {
 	i()
-	CreatePost(c *gin.Context)
-	GetPostById(c *gin.Context)
-	UpdatePost(c *gin.Context)
-	GetPostPageList(c *gin.Context)
-	DeletePost(c *gin.Context)
+	NewPost(c *gin.Context)
+	GetPost(c *gin.Context)
+	RefreshPost(c *gin.Context)
+	PostPageList(c *gin.Context)
+	PostRemove(c *gin.Context)
 }
 
 func NewHandler(db *gorm.DB) Handler {

@@ -66,3 +66,15 @@ func (a *Comment) AfterDelete(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+func (repo *CommentRepo) CreateComment() (cr *Comment, err error) {
+	c := repo.Model
+	err = repo.DB.Create(c).Error
+	return c, err
+}
+func (repo *CommentRepo) ListComment() (crs *[]Comment, err error) {
+	c := repo.Model
+	var comments []Comment
+	err = repo.DB.Model(&Comment{}).Where("post_id = ?", c.PostID).Scan(&comments).Error
+	return &comments, err
+}

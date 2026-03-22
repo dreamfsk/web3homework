@@ -10,8 +10,8 @@ type Service interface {
 	CreatePost(req *PostCreateReq) (*post.Post, error)
 	GetPostById(id uint) (*post.Post, error)
 	UpdatePost(req *PostUpdateReq) (*post.Post, error)
-	GetPostPageList(req *PostPageReq) (*post.Post, error)
-	DeletePost(id uint) (*post.Post, error)
+	GetPostPageList(req *PostPageReq) (*[]post.Post, error)
+	DeletePost(id uint) (int, error)
 }
 
 type service struct {
