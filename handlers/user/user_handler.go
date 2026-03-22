@@ -113,17 +113,17 @@ func (h *handler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.GetUserByID(userID.(uint))
+	u, err := h.userService.GetUserByID(userID.(uint))
 	if err != nil {
 		utils.HandleError(c, err)
 		return
 	}
 
 	utils.Success(c, UserResponse{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
+		ID:        u.ID,
+		Username:  u.Username,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt,
 	})
 }
 

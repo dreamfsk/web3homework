@@ -26,11 +26,18 @@ func (s *service) CreateUser(req *CreateUserReq) (*user.User, error) {
 	log.Printf("UserService.CreateUser user: %#v", req)
 	repo := user.NewRepo(s.db)
 	u := repo.Model
-	u.Email = req.Email
 	u.Username = req.Username
-	er := repo.CheckExists()
-	if er != nil {
-		return nil, utils.ApiError(commons.UserExist)
+	var er error
+	er = repo.CheckNameExists()
+	if u.ID != 0 {
+		log.Printf("UserService.CreateUser CheckExists err: %#v", er)
+		return nil, utils.ServiceError(commons.UserExist)
+	}
+	u.Email = req.Email
+	er = repo.CheckEmailExists()
+	if u.ID != 0 {
+		log.Printf("UserService.CreateUser CheckExists err: %#v", er)
+		return nil, utils.ServiceError(commons.UserEmailExist)
 	}
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -41,7 +48,7 @@ func (s *service) CreateUser(req *CreateUserReq) (*user.User, error) {
 	u.Password = string(hashedPassword)
 	id, err := repo.Create()
 	if err != nil {
-		return nil, utils.ApiError(commons.UserAddError)
+		return nil, utils.ServiceError(commons.UserAddError)
 	}
 	log.Printf(" add user successful uId: %s", id)
 	return u, nil
@@ -53,7 +60,7 @@ func (s *service) GetUserByID(id uint) (*user.User, error) {
 	repo.Model.ID = id
 	u, err := repo.GetUser()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, utils.ApiError(commons.UserNotFound)
+		return nil, utils.ServiceError(commons.UserNotFound)
 	}
 	return u, nil
 }
@@ -63,15 +70,15 @@ func (s *service) Authenticate(username, password string) (*user.User, error) {
 	repo := user.NewRepo(s.db)
 	repo.Model.Username = username
 	u := repo.Model
-	if err := repo.CheckNotExists(); err != nil {
+	if err := repo.CheckNameExists(); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, utils.ApiError(commons.UserInvalid)
+			return nil, utils.ServiceError(commons.UserInvalid)
 		}
 		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
-		return nil, utils.ApiError(commons.UserInvalid)
+		return nil, utils.ServiceError(commons.UserInvalid)
 	}
 	return u, nil
 }
@@ -84,12 +91,12 @@ func (s *service) UpdateUser(id uint, req *UpdateUserReq) (*user.User, error) {
 
 	// 如果更新邮箱，检查是否已存在
 	if req.Email != "" && req.Email == u.Email {
-		return nil, utils.ApiError(commons.UserEmailExist)
+		return nil, utils.ServiceError(commons.UserEmailExist)
 	}
 	u.Email = req.Email
 	_, err = user.NewRepo(s.db, u).Save()
 	if err != nil {
-		return nil, err
+		return nil, utils.ServiceError(commons.UserUpdateFail)
 	}
 	return u, nil
 }

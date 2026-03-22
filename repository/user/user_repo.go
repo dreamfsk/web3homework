@@ -22,49 +22,34 @@ func (repo *UserRepo) Create() (ID uint, err error) {
 	return u.ID, err
 }
 
-func (repo *UserRepo) CheckExists() error {
+func (repo *UserRepo) CheckNameExists() error {
 	u := repo.Model
 	var existingUser User
+	var err error
 	if u.Username != "" {
-		err := repo.DB.Where("username = ?", u.Username).First(&existingUser).Error
-		if err == nil {
+		err = repo.DB.Where("username = ?", u.Username).First(&existingUser).Error
+		if err == nil && existingUser.ID != 0 {
 			u.ID = existingUser.ID
+			u.Username = existingUser.Username
+			u.Password = existingUser.Password
 		}
-		return err
 	}
-	if u.Email != "" {
-		// 检查邮箱是否已存在
-		err := repo.DB.Where("email = ?", u.Email).First(&existingUser).Error
-		if err == nil {
-			u.ID = existingUser.ID
-		}
-		return err
-	}
-	return nil
+	return err
 }
-func (repo *UserRepo) CheckNotExists() error {
+func (repo *UserRepo) CheckEmailExists() error {
 	u := repo.Model
 	var existingUser User
-	if u.Username != "" {
-		err := repo.DB.Where("username = ?", u.Username).First(&existingUser).Error
-		if err == nil {
-			u.ID = existingUser.ID
-			u.Username = existingUser.Username
-			u.Password = existingUser.Password
-		}
-		return err
-	}
+	var err error
 	if u.Email != "" {
 		// 检查邮箱是否已存在
-		err := repo.DB.Where("email = ?", u.Email).First(&existingUser).Error
-		if err == nil {
+		err = repo.DB.Where("email = ?", u.Email).First(&existingUser).Error
+		if err == nil && existingUser.ID != 0 {
 			u.ID = existingUser.ID
 			u.Username = existingUser.Username
 			u.Password = existingUser.Password
 		}
-		return err
 	}
-	return nil
+	return err
 }
 
 func (repo *UserRepo) GetUser() (u *User, err error) {

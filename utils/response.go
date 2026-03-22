@@ -26,7 +26,6 @@ func Error(c *gin.Context, code int, message string) {
 	c.JSON(code, Response{
 		Code:    code,
 		Message: message,
-		Error:   message,
 	})
 }
 
