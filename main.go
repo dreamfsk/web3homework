@@ -2,7 +2,7 @@ package main
 
 import (
 	"com.dreamfsk/blog/config"
-	"com.dreamfsk/blog/pkg"
+	"com.dreamfsk/blog/middleware"
 	"com.dreamfsk/blog/router"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -15,7 +15,7 @@ func main() {
 	r := gin.Default()
 	// 全局中间件
 	r.Use(gin.Logger())
-	r.Use(pkg.CORS())
+	r.Use(middleware.CORS())
 
 	router.Router(r)
 

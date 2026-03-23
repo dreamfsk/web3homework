@@ -2,12 +2,11 @@ package user
 
 import (
 	"com.dreamfsk/blog/commons/code"
-	"com.dreamfsk/blog/pkg/errors"
-	"com.dreamfsk/blog/pkg/validation"
+	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/services/user"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"go.uber.org/zap"
 )
 
 // Register 注册新用户
@@ -26,21 +25,21 @@ import (
 func (h *handler) Register(c *gin.Context) {
 	var req user.CreateUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	u, err := h.userService.CreateUser(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.UserCreateError).WithError(err)
+		h.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
+		response.FailWithMessage(code.Text(code.UserCreateError), c)
 		return
 	}
-
-	utils.Success(c, UserResponse{
+	response.OkWithDetailed(UserResponse{
 		ID:        u.ID,
 		Username:  u.Username,
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
-	})
+	}, "注册成功", c)
 }
 
 // Login 用户登录
@@ -58,23 +57,24 @@ func (h *handler) Register(c *gin.Context) {
 func (h *handler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 
 	u, err := h.userService.Authenticate(req.Username, req.Password)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.UserLoginError).WithError(err)
+		h.zl.Error(code.Text(code.UserLoginError), zap.Error(err))
+		response.FailWithMessage(code.Text(code.UserLoginError), c)
 		return
 	}
 
 	token, err := utils.GenerateToken(h.jwtSecret, u.ID, u.Username)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.UserLoginError).WithError(err)
+		h.zl.Error(code.Text(code.UserLoginError), zap.Error(err))
+		response.FailWithMessage(code.Text(code.UserLoginError), c)
 		return
 	}
-
-	utils.Success(c, gin.H{
+	response.OkWithDetailed(gin.H{
 		"token": token,
 		"user": UserResponse{
 			ID:        u.ID,
@@ -82,7 +82,7 @@ func (h *handler) Login(c *gin.Context) {
 			Email:     u.Email,
 			CreatedAt: u.CreatedAt,
 		},
-	})
+	}, "注册成功", c)
 }
 
 // GetProfile 用户查询
@@ -99,21 +99,21 @@ func (h *handler) Login(c *gin.Context) {
 func (h *handler) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		errors.BError(http.StatusBadRequest, code.AuthorizationError)
+		response.NoAuth(code.Text(code.AuthorizationError), c)
 		return
 	}
 	u, err := h.userService.GetUserByID(userID.(uint))
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.UserCreateError).WithError(err)
+		response.FailWithMessage(code.Text(code.UserCreateError), c)
 		return
 	}
 
-	utils.Success(c, UserResponse{
+	response.OkWithDetailed(UserResponse{
 		ID:        u.ID,
 		Username:  u.Username,
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
-	})
+	}, "查询成功", c)
 }
 
 // UpdateProfile 用户更新
@@ -131,26 +131,25 @@ func (h *handler) GetProfile(c *gin.Context) {
 func (h *handler) UpdateProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		errors.BError(http.StatusBadRequest, code.AuthorizationError)
+		response.NoAuth(code.Text(code.AuthorizationError), c)
 		return
 	}
 
 	var req user.UpdateUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 
 	u, err := h.userService.UpdateUser(userID.(uint), &req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.UserUpdateError).WithError(err)
+		response.FailWithMessage(code.Text(code.UserUpdateError), c)
 		return
 	}
-
-	utils.Success(c, UserResponse{
+	response.OkWithDetailed(UserResponse{
 		ID:        u.ID,
 		Username:  u.Username,
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt,
-	})
+	}, "更新成功", c)
 }

@@ -9,7 +9,8 @@ import (
 var (
 	config Config
 	// export db
-	DB *gorm.DB
+	DB    *gorm.DB
+	B_Zap Zap
 )
 
 type DBTypeConfig string
@@ -18,6 +19,7 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Mysql    MysqlConfig    `mapstructure:"mysql"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
+	Zap      Zap            `mapstructure:"zap" json:"zap" yaml:"zap"`
 	Sqlite   SqliteConfig   `mapstructure:"sqlite"`
 	DBType   DBTypeConfig   `mapstructure:"dbtype"`
 	Language LanguageConfig `mapstructure:"language"`
@@ -68,6 +70,7 @@ func init() {
 	if err != nil {
 		return
 	}
+	B_Zap = config.Zap
 }
 
 func Env() *Config {

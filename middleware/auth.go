@@ -1,4 +1,4 @@
-package pkg
+package middleware
 
 import (
 	"com.dreamfsk/blog/config"

@@ -4,6 +4,7 @@ import (
 	"com.dreamfsk/blog/config"
 	"com.dreamfsk/blog/services/user"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -17,13 +18,14 @@ type Handler interface {
 	UpdateProfile(c *gin.Context)
 }
 
-func NewHandler(db *gorm.DB, cfg *config.Config) Handler {
-	return &handler{userService: user.NewService(db), jwtSecret: []byte(cfg.JWT.Secret)}
+func NewHandler(db *gorm.DB, cfg *config.Config, zl *zap.Logger) Handler {
+	return &handler{userService: user.NewService(db), jwtSecret: []byte(cfg.JWT.Secret), zl: zl}
 }
 
 type handler struct {
 	userService user.Service
 	jwtSecret   []byte
+	zl          *zap.Logger
 }
 
 func (h *handler) i() {}

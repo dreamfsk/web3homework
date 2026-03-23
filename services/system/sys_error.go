@@ -3,12 +3,11 @@ package system
 import (
 	"com.dreamfsk/blog/config"
 	"com.dreamfsk/blog/repository/models"
+	"context"
 )
 
-type SysErrorService struct{}
-
 // CreateSysError 创建错误日志记录
-func (sysErrorService *SysErrorService) CreateSysError(sysError *models.SysError) (err error) {
+func (s *service) CreateSysError(ctx context.Context, sysError *models.SysError) (err error) {
 	if config.DB == nil {
 		return nil
 	}
@@ -17,31 +16,31 @@ func (sysErrorService *SysErrorService) CreateSysError(sysError *models.SysError
 }
 
 // DeleteSysError 删除错误日志记录
-func (sysErrorService *SysErrorService) DeleteSysError(ID string) (err error) {
+func (s *service) DeleteSysError(ctx context.Context, ID string) (err error) {
 	err = config.DB.Delete(&models.SysError{}, "id = ?", ID).Error
 	return err
 }
 
 // DeleteSysErrorByIds 批量删除错误日志记录
-func (sysErrorService *SysErrorService) DeleteSysErrorByIds(IDs []string) (err error) {
+func (s *service) DeleteSysErrorByIds(ctx context.Context, IDs []string) (err error) {
 	err = config.DB.Delete(&[]models.SysError{}, "id in ?", IDs).Error
 	return err
 }
 
 // UpdateSysError 更新错误日志记录
-func (sysErrorService *SysErrorService) UpdateSysError(sysError models.SysError) (err error) {
+func (s *service) UpdateSysError(ctx context.Context, sysError *models.SysError) (err error) {
 	err = config.DB.Model(&models.SysError{}).Where("id = ?", sysError.ID).Updates(&sysError).Error
 	return err
 }
 
 // GetSysError 根据ID获取错误日志记录
-func (sysErrorService *SysErrorService) GetSysError(ID string) (sysError models.SysError, err error) {
+func (s *service) GetSysError(ctx context.Context, ID string) (sysError models.SysError, err error) {
 	err = config.DB.Where("id = ?", ID).First(&sysError).Error
 	return
 }
 
 // GetSysErrorInfoList 分页获取错误日志记录
-func (sysErrorService *SysErrorService) GetSysErrorInfoList(info SysErrorSearch) (list []models.SysError, total int64, err error) {
+func (s *service) GetSysErrorInfoList(ctx context.Context, info *SysErrorSearch) (list []models.SysError, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
@@ -72,7 +71,7 @@ func (sysErrorService *SysErrorService) GetSysErrorInfoList(info SysErrorSearch)
 }
 
 // GetSysErrorSolution 异步处理错误
-func (sysErrorService *SysErrorService) GetSysErrorSolution(ID string) (err error) {
+func (s *service) GetSysErrorSolution(ctx context.Context, ID string) (err error) {
 	// 立即更新为处理中
 	err = config.DB.Model(&models.SysError{}).Where("id = ?", ID).Update("status", "处理中").Error
 	if err != nil {

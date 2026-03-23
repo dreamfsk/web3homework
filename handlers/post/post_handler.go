@@ -2,54 +2,51 @@ package post
 
 import (
 	"com.dreamfsk/blog/commons/code"
-	"com.dreamfsk/blog/pkg/errors"
-	"com.dreamfsk/blog/pkg/validation"
+	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/services/post"
-	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func (a *handler) NewPost(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		errors.BError(http.StatusBadRequest, code.AuthorizationError)
+		response.NoAuth(code.Text(code.AuthorizationError), c)
 		return
 	}
 	var req post.PostCreateReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.CreatePost(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.PostCreateError).WithError(err)
+		response.FailWithMessage(code.Text(code.PostCreateError), c)
 		return
 	}
-	utils.Success(c, PostResponse{
+	response.OkWithDetailed(PostResponse{
 		ps.ID,
 		ps.Title,
 		ps.Content,
 		ps.CreatedAt,
-	})
+	}, "创建成功", c)
 }
 
 func (a *handler) PostPageList(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		errors.BError(http.StatusBadRequest, code.AuthorizationError)
+		response.NoAuth(code.Text(code.AuthorizationError), c)
 		return
 	}
 	var req post.PostPageReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.GetPostPageList(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.PostListError).WithError(err)
+		response.FailWithMessage(code.Text(code.PostListError), c)
 		return
 	}
 	var posts = []PostResponse{}
@@ -60,65 +57,65 @@ func (a *handler) PostPageList(c *gin.Context) {
 			p.Content,
 			p.CreatedAt})
 	}
-	utils.Success(c, posts)
+	response.OkWithDetailed(posts, "查询成功", c)
 }
 
 func (a *handler) GetPost(c *gin.Context) {
 	var req post.PostSearchReq
 	if err := c.ShouldBindQuery(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.GetPostById(req.ID)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.PostDetailError).WithError(err)
+		response.FailWithMessage(code.Text(code.PostDetailError), c)
 		return
 	}
-	utils.Success(c, PostResponse{
+	response.OkWithDetailed(PostResponse{
 		ps.ID,
 		ps.Title,
 		ps.Content,
 		ps.CreatedAt,
-	})
+	}, "查询成功", c)
 }
 
 func (a *handler) RefreshPost(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		errors.BError(http.StatusBadRequest, code.AuthorizationError)
+		response.FailWithMessage(code.Text(code.AuthorizationError), c)
 		return
 	}
 	var req post.PostUpdateReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.UpdatePost(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.PostUpdateError).WithError(err)
+		response.FailWithMessage(code.Text(code.PostUpdateError), c)
 		return
 	}
-	utils.Success(c, PostUpResponse{
+	response.OkWithDetailed(PostResponse{
 		ps.ID,
 		ps.Title,
 		ps.Content,
-		ps.UpdatedAt,
-	})
+		ps.CreatedAt,
+	}, "更新成功", c)
 }
 
 func (a *handler) PostRemove(c *gin.Context) {
 	var req post.PostSearchReq
 	if err := c.ShouldBindQuery(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	rs, err := a.postService.DeletePost(req.ID)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.PostDetailError).WithError(err)
+		response.FailWithMessage(code.Text(code.PostDeleteError), c)
 		return
 	}
-	utils.Success(c, PostDeleteResponse{
+	response.OkWithDetailed(PostDeleteResponse{
 		ID: rs,
-	})
+	}, "删除成功", c)
 }

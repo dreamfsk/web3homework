@@ -28,11 +28,3 @@ func Error(c *gin.Context, code int, message string) {
 		Message: message,
 	})
 }
-
-func ValidationError(c *gin.Context, errors string) {
-	c.JSON(http.StatusUnprocessableEntity, Response{
-		Code:    422,
-		Message: "validation failed",
-		Error:   errors,
-	})
-}

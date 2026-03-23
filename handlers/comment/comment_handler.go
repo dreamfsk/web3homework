@@ -2,42 +2,38 @@ package comment
 
 import (
 	"com.dreamfsk/blog/commons/code"
-	"com.dreamfsk/blog/pkg/errors"
-	"com.dreamfsk/blog/pkg/validation"
+	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/services/comment"
-	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func (a *handler) NewCommont(c *gin.Context) {
 	var req comment.CommentCreatReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	cr, err := a.commontService.CreateComment(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.CommentCreateError).WithError(err)
+		response.FailWithMessage(code.Text(code.CommentCreateError), c)
 		return
 	}
-	utils.Success(c, CommentRes{
+	response.OkWithDetailed(CommentRes{
 		cr.ID,
 		cr.Content,
 		cr.CreatedAt,
-	})
-	return
+	}, "创建成功", c)
 }
 
 func (a *handler) CommentList(c *gin.Context) {
 	var req comment.CommentPageReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, validation.Error(err))
+		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	cs, err := a.commontService.GetCommentList(&req)
 	if err != nil {
-		errors.BError(http.StatusBadRequest, code.CommentListError).WithError(err)
+		response.FailWithMessage(code.Text(code.CommentListError), c)
 		return
 	}
 	var comments = []CommentRes{}
@@ -47,5 +43,5 @@ func (a *handler) CommentList(c *gin.Context) {
 			p.Content,
 			p.CreatedAt})
 	}
-	utils.Success(c, comments)
+	response.OkWithDetailed(comments, "查询成功", c)
 }

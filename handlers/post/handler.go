@@ -3,6 +3,7 @@ package post
 import (
 	"com.dreamfsk/blog/services/post"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -17,12 +18,13 @@ type Handler interface {
 	PostRemove(c *gin.Context)
 }
 
-func NewHandler(db *gorm.DB) Handler {
-	return &handler{postService: post.NewService(db)}
+func NewHandler(db *gorm.DB, zl *zap.Logger) Handler {
+	return &handler{postService: post.NewService(db), zl: zl}
 }
 
 type handler struct {
 	postService post.Service
+	zl          *zap.Logger
 }
 
 func (h *handler) i() {}
