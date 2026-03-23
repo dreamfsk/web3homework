@@ -1,10 +1,8 @@
 package comment
 
 import (
-	"com.dreamfsk/blog/commons"
 	"com.dreamfsk/blog/repository/models"
 	"com.dreamfsk/blog/repository/repos"
-	"com.dreamfsk/blog/utils"
 )
 
 func (a *service) CreateComment(req *CommentCreatReq) (*models.Comment, error) {
@@ -14,7 +12,7 @@ func (a *service) CreateComment(req *CommentCreatReq) (*models.Comment, error) {
 	c.Content = req.Content
 	_, err := repos.NewCommentRepo(a.db, c).CreateComment()
 	if err != nil {
-		return nil, utils.ServiceError(commons.CommentCreateError)
+		return nil, err
 	}
 	return c, nil
 }
@@ -25,7 +23,7 @@ func (a *service) GetCommentList(req *CommentPageReq) (*[]models.Comment, error)
 	}
 	cs, err := repos.NewCommentRepo(a.db, &p).ListComment()
 	if err != nil {
-		return nil, utils.ServiceError(commons.PostListError)
+		return nil, err
 	}
 	return cs, nil
 }

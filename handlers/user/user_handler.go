@@ -1,7 +1,9 @@
 package user
 
 import (
-	"com.dreamfsk/blog/config/validation"
+	"com.dreamfsk/blog/commons/code"
+	"com.dreamfsk/blog/pkg/errors"
+	"com.dreamfsk/blog/pkg/validation"
 	"com.dreamfsk/blog/services/user"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
@@ -29,7 +31,7 @@ func (h *handler) Register(c *gin.Context) {
 	}
 	u, err := h.userService.CreateUser(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.UserCreateError).WithError(err)
 		return
 	}
 
@@ -62,13 +64,13 @@ func (h *handler) Login(c *gin.Context) {
 
 	u, err := h.userService.Authenticate(req.Username, req.Password)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.UserLoginError).WithError(err)
 		return
 	}
 
 	token, err := utils.GenerateToken(h.jwtSecret, u.ID, u.Username)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.UserLoginError).WithError(err)
 		return
 	}
 
@@ -97,13 +99,12 @@ func (h *handler) Login(c *gin.Context) {
 func (h *handler) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Error(c, http.StatusUnauthorized, "Unauthorized")
+		errors.BError(http.StatusBadRequest, code.AuthorizationError)
 		return
 	}
-
 	u, err := h.userService.GetUserByID(userID.(uint))
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.UserCreateError).WithError(err)
 		return
 	}
 
@@ -130,7 +131,7 @@ func (h *handler) GetProfile(c *gin.Context) {
 func (h *handler) UpdateProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Error(c, http.StatusUnauthorized, "Unauthorized")
+		errors.BError(http.StatusBadRequest, code.AuthorizationError)
 		return
 	}
 
@@ -142,7 +143,7 @@ func (h *handler) UpdateProfile(c *gin.Context) {
 
 	u, err := h.userService.UpdateUser(userID.(uint), &req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.UserUpdateError).WithError(err)
 		return
 	}
 

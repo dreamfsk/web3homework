@@ -5,7 +5,7 @@ import (
 	"com.dreamfsk/blog/handlers/comment"
 	"com.dreamfsk/blog/handlers/post"
 	"com.dreamfsk/blog/handlers/user"
-	"com.dreamfsk/blog/middleware"
+	"com.dreamfsk/blog/pkg"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ func setRoutApi(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
 	// 需要认证的路由
 	protected := r.Group("/api/v1")
-	protected.Use(middleware.Auth(&cfg.JWT))
+	protected.Use(pkg.Auth(&cfg.JWT))
 	{
 		protected.GET("/user/me", userHandler.GetProfile)
 		protected.PUT("/user/update", userHandler.UpdateProfile)

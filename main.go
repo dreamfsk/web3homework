@@ -2,7 +2,7 @@ package main
 
 import (
 	"com.dreamfsk/blog/config"
-	"com.dreamfsk/blog/middleware"
+	"com.dreamfsk/blog/pkg"
 	"com.dreamfsk/blog/router"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,8 +14,8 @@ func main() {
 	// 创建 Gin 引擎
 	r := gin.Default()
 	// 全局中间件
-	r.Use(middleware.Logger())
-	r.Use(middleware.CORS())
+	r.Use(pkg.Logger())
+	r.Use(pkg.CORS())
 
 	router.Router(r)
 

@@ -1,10 +1,8 @@
 package user
 
 import (
-	"com.dreamfsk/blog/commons"
 	"com.dreamfsk/blog/repository/models"
 	"com.dreamfsk/blog/repository/repos"
-	"com.dreamfsk/blog/utils"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -22,13 +20,13 @@ func (s *service) CreateUser(req *CreateUserReq) (*models.User, error) {
 	er = repo.CheckNameExists()
 	if u.ID != 0 {
 		log.Printf("UserService.CreateUser CheckExists err: %#v", er)
-		return nil, utils.ServiceError(commons.UserExist)
+		return nil, er
 	}
 	u.Email = req.Email
 	er = repo.CheckEmailExists()
 	if u.ID != 0 {
 		log.Printf("UserService.CreateUser CheckExists err: %#v", er)
-		return nil, utils.ServiceError(commons.UserEmailExist)
+		return nil, er
 	}
 	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -39,7 +37,7 @@ func (s *service) CreateUser(req *CreateUserReq) (*models.User, error) {
 	u.Password = string(hashedPassword)
 	id, err := repo.Create()
 	if err != nil {
-		return nil, utils.ServiceError(commons.UserAddError)
+		return nil, err
 	}
 	log.Printf(" add user successful uId: %s", id)
 	return u, nil
@@ -51,7 +49,7 @@ func (s *service) GetUserByID(id uint) (*models.User, error) {
 	repo.Model.ID = id
 	u, err := repo.GetUser()
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, utils.ServiceError(commons.UserNotFound)
+		return nil, err
 	}
 	return u, nil
 }
@@ -63,13 +61,13 @@ func (s *service) Authenticate(username, password string) (*models.User, error) 
 	u := repo.Model
 	if err := repo.CheckNameExists(); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, utils.ServiceError(commons.UserInvalid)
+			return nil, err
 		}
 		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
-		return nil, utils.ServiceError(commons.UserInvalid)
+		return nil, err
 	}
 	return u, nil
 }
@@ -82,12 +80,12 @@ func (s *service) UpdateUser(id uint, req *UpdateUserReq) (*models.User, error) 
 
 	// 如果更新邮箱，检查是否已存在
 	if req.Email != "" && req.Email == u.Email {
-		return nil, utils.ServiceError(commons.UserEmailExist)
+		return nil, err
 	}
 	u.Email = req.Email
 	_, err = repos.NewRepo(s.db, u).Save()
 	if err != nil {
-		return nil, utils.ServiceError(commons.UserUpdateFail)
+		return nil, err
 	}
 	return u, nil
 }

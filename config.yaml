@@ -11,14 +11,17 @@ sqlite:
   migrate: false
 
 mysql:
-  host: "192.168.31.220"
+  host: "127.0.0.1"
   port: "3306"
-  username: "ds"
-  password: "Wjqse4164#term"
+  username: "blog"
+  password: "123456"
   dbname: "blog"
   migrate: false
 
 jwt:
   secret: "your-secret-key-change-in-production"
   expire: "24h"
+
+language:
+  local: "zh-cn"
 

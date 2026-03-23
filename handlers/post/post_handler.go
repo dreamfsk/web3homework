@@ -1,8 +1,9 @@
 package post
 
 import (
-	"com.dreamfsk/blog/commons"
-	"com.dreamfsk/blog/config/validation"
+	"com.dreamfsk/blog/commons/code"
+	"com.dreamfsk/blog/pkg/errors"
+	"com.dreamfsk/blog/pkg/validation"
 	"com.dreamfsk/blog/services/post"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 func (a *handler) NewPost(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Error(c, http.StatusUnauthorized, commons.Unauthorized.String())
+		errors.BError(http.StatusBadRequest, code.AuthorizationError)
 		return
 	}
 	var req post.PostCreateReq
@@ -23,7 +24,7 @@ func (a *handler) NewPost(c *gin.Context) {
 	}
 	ps, err := a.postService.CreatePost(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.PostCreateError).WithError(err)
 		return
 	}
 	utils.Success(c, PostResponse{
@@ -37,7 +38,7 @@ func (a *handler) NewPost(c *gin.Context) {
 func (a *handler) PostPageList(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Error(c, http.StatusUnauthorized, commons.Unauthorized.String())
+		errors.BError(http.StatusBadRequest, code.AuthorizationError)
 		return
 	}
 	var req post.PostPageReq
@@ -48,7 +49,7 @@ func (a *handler) PostPageList(c *gin.Context) {
 	}
 	ps, err := a.postService.GetPostPageList(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.PostListError).WithError(err)
 		return
 	}
 	var posts = []PostResponse{}
@@ -70,7 +71,7 @@ func (a *handler) GetPost(c *gin.Context) {
 	}
 	ps, err := a.postService.GetPostById(req.ID)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.PostDetailError).WithError(err)
 		return
 	}
 	utils.Success(c, PostResponse{
@@ -84,7 +85,7 @@ func (a *handler) GetPost(c *gin.Context) {
 func (a *handler) RefreshPost(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Error(c, http.StatusUnauthorized, commons.Unauthorized.String())
+		errors.BError(http.StatusBadRequest, code.AuthorizationError)
 		return
 	}
 	var req post.PostUpdateReq
@@ -95,7 +96,7 @@ func (a *handler) RefreshPost(c *gin.Context) {
 	}
 	ps, err := a.postService.UpdatePost(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.PostUpdateError).WithError(err)
 		return
 	}
 	utils.Success(c, PostUpResponse{
@@ -114,7 +115,7 @@ func (a *handler) PostRemove(c *gin.Context) {
 	}
 	rs, err := a.postService.DeletePost(req.ID)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.PostDetailError).WithError(err)
 		return
 	}
 	utils.Success(c, PostDeleteResponse{

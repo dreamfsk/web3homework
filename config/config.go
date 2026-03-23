@@ -12,11 +12,12 @@ var (
 type DBTypeConfig string
 
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
-	Mysql  MysqlConfig  `mapstructure:"mysql"`
-	JWT    JWTConfig    `mapstructure:"jwt"`
-	Sqlite SqliteConfig `mapstructure:"sqlite"`
-	DBType DBTypeConfig `mapstructure:"dbtype"`
+	Server   ServerConfig   `mapstructure:"server"`
+	Mysql    MysqlConfig    `mapstructure:"mysql"`
+	JWT      JWTConfig      `mapstructure:"jwt"`
+	Sqlite   SqliteConfig   `mapstructure:"sqlite"`
+	DBType   DBTypeConfig   `mapstructure:"dbtype"`
+	Language LanguageConfig `mapstructure:"language"`
 }
 
 type ServerConfig struct {
@@ -41,6 +42,10 @@ type MysqlConfig struct {
 type JWTConfig struct {
 	Secret string `mapstructure:"secret"`
 	Expire string `mapstructure:"expire"`
+}
+
+type LanguageConfig struct {
+	Local string `mapstructure:"local"`
 }
 
 func init() {

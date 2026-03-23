@@ -1,10 +1,13 @@
 package comment
 
 import (
-	"com.dreamfsk/blog/config/validation"
+	"com.dreamfsk/blog/commons/code"
+	"com.dreamfsk/blog/pkg/errors"
+	"com.dreamfsk/blog/pkg/validation"
 	"com.dreamfsk/blog/services/comment"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func (a *handler) NewCommont(c *gin.Context) {
@@ -15,7 +18,7 @@ func (a *handler) NewCommont(c *gin.Context) {
 	}
 	cr, err := a.commontService.CreateComment(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.CommentCreateError).WithError(err)
 		return
 	}
 	utils.Success(c, CommentRes{
@@ -34,7 +37,7 @@ func (a *handler) CommentList(c *gin.Context) {
 	}
 	cs, err := a.commontService.GetCommentList(&req)
 	if err != nil {
-		utils.HandleError(c, err)
+		errors.BError(http.StatusBadRequest, code.CommentListError).WithError(err)
 		return
 	}
 	var comments = []CommentRes{}
