@@ -28,7 +28,7 @@ func setRoutApi(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
 	// 需要认证的路由
 	protected := r.Group("/api/v1")
-	protected.Use(middleware.Auth(&cfg.JWT))
+	protected.Use(middleware.Auth(&cfg.JWT, lg))
 	{
 		protected.GET("/user/me", userHandler.GetProfile)
 		protected.PUT("/user/update", userHandler.UpdateProfile)

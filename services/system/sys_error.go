@@ -1,41 +1,40 @@
 package system
 
 import (
-	"com.dreamfsk/blog/config"
 	"com.dreamfsk/blog/repository/models"
 	"context"
 )
 
 // CreateSysError 创建错误日志记录
 func (s *service) CreateSysError(ctx context.Context, sysError *models.SysError) (err error) {
-	if config.DB == nil {
+	if s.db == nil {
 		return nil
 	}
-	err = config.DB.Create(sysError).Error
+	err = s.db.Create(sysError).Error
 	return err
 }
 
 // DeleteSysError 删除错误日志记录
 func (s *service) DeleteSysError(ctx context.Context, ID string) (err error) {
-	err = config.DB.Delete(&models.SysError{}, "id = ?", ID).Error
+	err = s.db.Delete(&models.SysError{}, "id = ?", ID).Error
 	return err
 }
 
 // DeleteSysErrorByIds 批量删除错误日志记录
 func (s *service) DeleteSysErrorByIds(ctx context.Context, IDs []string) (err error) {
-	err = config.DB.Delete(&[]models.SysError{}, "id in ?", IDs).Error
+	err = s.db.Delete(&[]models.SysError{}, "id in ?", IDs).Error
 	return err
 }
 
 // UpdateSysError 更新错误日志记录
 func (s *service) UpdateSysError(ctx context.Context, sysError *models.SysError) (err error) {
-	err = config.DB.Model(&models.SysError{}).Where("id = ?", sysError.ID).Updates(&sysError).Error
+	err = s.db.Model(&models.SysError{}).Where("id = ?", sysError.ID).Updates(&sysError).Error
 	return err
 }
 
 // GetSysError 根据ID获取错误日志记录
 func (s *service) GetSysError(ctx context.Context, ID string) (sysError models.SysError, err error) {
-	err = config.DB.Where("id = ?", ID).First(&sysError).Error
+	err = s.db.Where("id = ?", ID).First(&sysError).Error
 	return
 }
 
@@ -44,7 +43,7 @@ func (s *service) GetSysErrorInfoList(ctx context.Context, info *SysErrorSearch)
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := config.DB.Model(&models.SysError{}).Order("created_at desc")
+	db := s.db.Model(&models.SysError{}).Order("created_at desc")
 	var sysErrors []models.SysError
 	// 如果有条件搜索 下方会自动创建搜索语句
 	if len(info.CreatedAtRange) == 2 {
@@ -73,7 +72,7 @@ func (s *service) GetSysErrorInfoList(ctx context.Context, info *SysErrorSearch)
 // GetSysErrorSolution 异步处理错误
 func (s *service) GetSysErrorSolution(ctx context.Context, ID string) (err error) {
 	// 立即更新为处理中
-	err = config.DB.Model(&models.SysError{}).Where("id = ?", ID).Update("status", "处理中").Error
+	err = s.db.Model(&models.SysError{}).Where("id = ?", ID).Update("status", "处理中").Error
 	if err != nil {
 		return err
 	}

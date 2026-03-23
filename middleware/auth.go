@@ -1,19 +1,22 @@
 package middleware
 
 import (
+	"com.dreamfsk/blog/commons/code"
 	"com.dreamfsk/blog/config"
+	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"go.uber.org/zap"
 	"strings"
 )
 
-func Auth(jwt *config.JWTConfig) gin.HandlerFunc {
+func Auth(jwt *config.JWTConfig, zl *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 从 Header 获取 Token
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			utils.Error(c, http.StatusUnauthorized, "Authorization header required")
+			zl.Error(code.Text(code.AuthorizationNotFound))
+			response.NoAuth(code.Text(code.AuthorizationNotFound), c)
 			c.Abort()
 			return
 		}
@@ -21,7 +24,8 @@ func Auth(jwt *config.JWTConfig) gin.HandlerFunc {
 		// 提取 Token（Bearer <token>）
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			utils.Error(c, http.StatusUnauthorized, "Invalid authorization header format")
+			zl.Error(code.Text(code.AuthorizationError))
+			response.NoAuth(code.Text(code.AuthorizationError), c)
 			c.Abort()
 			return
 		}
@@ -31,7 +35,8 @@ func Auth(jwt *config.JWTConfig) gin.HandlerFunc {
 		// 验证 Token
 		claims, err := utils.ParseToken(tokenString, []byte(jwt.Secret))
 		if err != nil {
-			utils.Error(c, http.StatusUnauthorized, "Invalid token")
+			zl.Error(code.Text(code.AuthorizationInvaild))
+			response.NoAuth(code.Text(code.AuthorizationInvaild), c)
 			c.Abort()
 			return
 		}

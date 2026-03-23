@@ -11,10 +11,10 @@ sqlite:
   migrate: false
 
 mysql:
-  host: "127.0.0.1"
+  host: "192.168.31.220"
   port: "3306"
-  username: "blog"
-  password: "123456"
+  username: "ds"
+  password: "Wjqse4164#term"
   dbname: "blog"
   migrate: false
 

@@ -5,16 +5,19 @@ import (
 	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/services/comment"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func (a *handler) NewCommont(c *gin.Context) {
 	var req comment.CommentCreatReq
 	if err := c.ShouldBindJSON(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	cr, err := a.commontService.CreateComment(&req)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.CommentCreateError), c)
 		return
 	}
@@ -28,11 +31,13 @@ func (a *handler) NewCommont(c *gin.Context) {
 func (a *handler) CommentList(c *gin.Context) {
 	var req comment.CommentPageReq
 	if err := c.ShouldBindJSON(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	cs, err := a.commontService.GetCommentList(&req)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.CommentListError), c)
 		return
 	}

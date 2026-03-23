@@ -5,6 +5,7 @@ import (
 	"com.dreamfsk/blog/models/common/response"
 	"com.dreamfsk/blog/services/post"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func (a *handler) NewPost(c *gin.Context) {
@@ -16,11 +17,13 @@ func (a *handler) NewPost(c *gin.Context) {
 	var req post.PostCreateReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.CreatePost(&req)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.PostCreateError), c)
 		return
 	}
@@ -41,11 +44,13 @@ func (a *handler) PostPageList(c *gin.Context) {
 	var req post.PostPageReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.GetPostPageList(&req)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.PostListError), c)
 		return
 	}
@@ -63,11 +68,13 @@ func (a *handler) PostPageList(c *gin.Context) {
 func (a *handler) GetPost(c *gin.Context) {
 	var req post.PostSearchReq
 	if err := c.ShouldBindQuery(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.GetPostById(req.ID)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.PostDetailError), c)
 		return
 	}
@@ -88,11 +95,13 @@ func (a *handler) RefreshPost(c *gin.Context) {
 	var req post.PostUpdateReq
 	req.UserId = userID.(uint)
 	if err := c.ShouldBindJSON(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	ps, err := a.postService.UpdatePost(&req)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.PostUpdateError), c)
 		return
 	}
@@ -107,11 +116,13 @@ func (a *handler) RefreshPost(c *gin.Context) {
 func (a *handler) PostRemove(c *gin.Context) {
 	var req post.PostSearchReq
 	if err := c.ShouldBindQuery(&req); err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.ParamBindError), c)
 		return
 	}
 	rs, err := a.postService.DeletePost(req.ID)
 	if err != nil {
+		a.zl.Error(code.Text(code.UserCreateError), zap.Error(err))
 		response.FailWithMessage(code.Text(code.PostDeleteError), c)
 		return
 	}

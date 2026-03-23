@@ -33,7 +33,7 @@ func getDBType(c *Config) DBTypeConfig {
 func GetDB() (*gorm.DB, error) {
 	if DB != nil {
 		if commons.Migrate {
-			initModels()
+			models.Migrate(DB)
 		}
 		return DB, nil
 	}
@@ -42,7 +42,7 @@ func GetDB() (*gorm.DB, error) {
 		return nil, err
 	}
 	if commons.Migrate {
-		initModels()
+		models.Migrate(DB)
 	}
 	return DB, nil
 }
@@ -119,12 +119,4 @@ func initSqlite(c *Config) error {
 		commons.Migrate = c.Mysql.Migrate
 	}
 	return err
-}
-func initModels() {
-	// autoMigrate
-	err := DB.AutoMigrate(&models.User{}, &models.Post{}, &models.Comment{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
-	}
-	log.Println("===migrated tables successfully===")
 }
